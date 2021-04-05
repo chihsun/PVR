@@ -200,13 +200,10 @@ namespace PVR
         }
         private void RPWV_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (int.TryParse(RPWV.Text, out PVRData.rpwv_r))
-            {
-                if (PVRData.rpwv_stiff)
-                    RPWV.Background = Brushes.LightPink;
-                else
-                    RPWV.Background = SystemColors.WindowBrush;
-            }
+            if (int.TryParse(RPWV.Text, out PVRData.rpwv_r) && PVRData.rpwv_stiff)
+                RPWV.Background = Brushes.LightPink;
+            else
+                RPWV.Background = SystemColors.WindowBrush;
             if (RPWV.Text.Length == 4)
             {
                 ((UIElement)Keyboard.FocusedElement).MoveFocus(new TraversalRequest(FocusNavigationDirection.Next)); 
@@ -215,13 +212,10 @@ namespace PVR
 
         private void LPWV_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (int.TryParse(LPWV.Text, out PVRData.lpwv_r))
-            {
-                if (PVRData.lpwv_stiff)
-                    LPWV.Background = Brushes.LightPink;
-                else
-                    LPWV.Background = SystemColors.WindowBrush;
-            }
+            if (int.TryParse(LPWV.Text, out PVRData.lpwv_r) && PVRData.lpwv_stiff)
+                LPWV.Background = Brushes.LightPink;
+            else
+                LPWV.Background = SystemColors.WindowBrush;
             if (LPWV.Text.Length == 4)
             {
                 ((UIElement)Keyboard.FocusedElement).MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));

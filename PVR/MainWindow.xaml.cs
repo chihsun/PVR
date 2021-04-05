@@ -28,12 +28,17 @@ namespace PVR
         public MainWindow()
         {
             InitializeComponent();
+            System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+            System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
+            System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+            System.Threading.Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
         }
 
         private void BT_Clear_Click(object sender, RoutedEventArgs e)
         {
             TraverseVisualTree(My_Window);
             PVRData = new ABIPVR();
+            Age.Focus();
         }
 
         private void My_Window_Loaded(object sender, RoutedEventArgs e)
