@@ -7,4 +7,10 @@
     <ApplicationIcon>ab5s4-9gjdv-001.ico</ApplicationIcon>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.3" />
+    <PackageReference Include="Tesseract" Version="4.1.1" />
+  </ItemGroup>
+
 </Project>

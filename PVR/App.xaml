@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:PVR"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <!--ResourceDictionary Source="pack://application:,,,/Biaui;component/Styles.xaml" /-->
     </Application.Resources>
 </Application>

@@ -13,13 +13,19 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Tesseract;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Formats;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace PVR
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         #region FIELD
         public string ABIReport;
@@ -44,6 +50,20 @@ namespace PVR
         private void My_Window_Loaded(object sender, RoutedEventArgs e)
         {
             Age.Focus();
+            Loaddatabase();
+            /*
+            if (alldata.Count > 0)
+            {
+                comB_ID.ItemsSource = alldata.Select(x => x.ID).ToList();
+                comB_ID.SelectedIndex = 0;
+            }*/
+            if (alldata.Count > 0)
+            {
+                var datedata = alldata.Select(x => x.StudyTime.ToString("yyyyMMdd")).ToList().Distinct().ToList();
+                datedata.Sort((x, y) => -x.CompareTo(y));
+                ComB_Date.ItemsSource = datedata;
+                ComB_Date.SelectedIndex = 0;
+            }
         }
 
         private void Report_Click(object sender, RoutedEventArgs e)
@@ -55,24 +75,24 @@ namespace PVR
                 MessageBox.Show("找不到範例檔", "錯誤", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                 return;
             }
-            if (int.TryParse(RSBP.Text, out PVRData.rsbp)
-                & int.TryParse(LSBP.Text, out PVRData.lsbp)
-                & int.TryParse(RDBP.Text, out PVRData.rdbp)
-                & int.TryParse(LDBP.Text, out PVRData.ldbp))
+            if (int.TryParse(RSBP.Text, out PVRData.RSBP)
+                & int.TryParse(LSBP.Text, out PVRData.LSBP)
+                & int.TryParse(RDBP.Text, out PVRData.RDBP)
+                & int.TryParse(LDBP.Text, out PVRData.LDBP))
             {
                 if (PVRData.bp_p)
                     ABIReport = ABIReport.Replace("<<UBP>>", "Blood pressure is difference more than 15 mmHg between bilateral brachial blood pressure");
                 else
                     ABIReport = ABIReport.Replace("<<UBP>>", "No obvious difference between bilateral brachial blood pressure");
             }
-            else if (PVRData.rsbp <= 0 && PVRData.lsbp <= 0 && PVRData.rdbp <= 0 && PVRData.ldbp <= 0)
+            else if (PVRData.RSBP <= 0 && PVRData.LSBP <= 0 && PVRData.RDBP <= 0 && PVRData.LDBP <= 0)
                 ABIReport = ABIReport.Replace("<<UBP>>", "No obvious difference between bilateral brachial blood pressure").Replace("Right & Left: <<RBP>> mmHg　&　<<LBP>> mmHg", string.Empty);
             else
                 ABIReport = ABIReport.Replace("<<UBP>>", string.Empty);
-            ABIReport = ABIReport.Replace("<<RBP>>", string.Format($"{(PVRData.rsbp > 0 && PVRData.rdbp > 0 ? PVRData.rsbp.ToString() + "/" + PVRData.rdbp.ToString() : "---/---")}"));
-            ABIReport = ABIReport.Replace("<<LBP>>", string.Format($"{(PVRData.lsbp > 0 && PVRData.ldbp > 0 ? PVRData.lsbp.ToString() + "/" + PVRData.ldbp.ToString() : "---/---")}")); 
+            ABIReport = ABIReport.Replace("<<RBP>>", string.Format($"{(PVRData.RSBP > 0 && PVRData.RDBP > 0 ? PVRData.RSBP.ToString() + "/" + PVRData.RDBP.ToString() : "---/---")}"));
+            ABIReport = ABIReport.Replace("<<LBP>>", string.Format($"{(PVRData.LSBP > 0 && PVRData.LDBP > 0 ? PVRData.LSBP.ToString() + "/" + PVRData.LDBP.ToString() : "---/---")}"));
 
-            ABIReport = ABIReport.Replace("<<RABI>>", PVRData.rabi_r !=0 ? string.Format("{0:0.00}", PVRData.rabi_r) : "---").Replace("<<LABI>>", PVRData.labi_r !=0 ? string.Format("{0:0.00}", PVRData.labi_r) : "---");
+            ABIReport = ABIReport.Replace("<<RABI>>", PVRData.rabi_r != 0 ? string.Format("{0:0.00}", PVRData.rabi_r) : "---").Replace("<<LABI>>", PVRData.labi_r != 0 ? string.Format("{0:0.00}", PVRData.labi_r) : "---");
 
             ABIReport = ABIReport.Replace("<<RPWV>>", PVRData.rpwv_r != 0 ? PVRData.rpwv_r.ToString() : "----").Replace("<<LPWV>>", PVRData.lpwv_r != 0 ? PVRData.lpwv_r.ToString() : "----");
 
@@ -162,17 +182,221 @@ namespace PVR
             else
                 BTN_TOP.Background = SystemColors.WindowBrush;
         }
+        private void BTN_OCR_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                InitialDirectory = Environment.CurrentDirectory,
+                Title = "選取圖檔",
+                Filter = "JPEG files (*.jpg;*.png)|*.jpg;*.png"
+            };
+            if (dlg.ShowDialog() == true)
+            {
+                var imgPath = dlg.FileName;
+                IImageFormat format;
+                SixLabors.ImageSharp.Image img = SixLabors.ImageSharp.Image.Load(imgPath, out format);
+                var clone = img.Clone(
+                        i => i.Crop(new SixLabors.ImageSharp.Rectangle(900, 200, 300, 90)));
+                var engine = new TesseractEngine("tessdata", "eng", EngineMode.Default);
+                var ms = new MemoryStream();
+                clone.Save(ms, format);
+                string strResult = engine.Process(Pix.LoadFromMemory(ms.ToArray())).GetText();
+                //string strResult = ImageToText(imgPath);
+
+                if (!string.IsNullOrEmpty(strResult))
+                {
+                    Clipboard.SetDataObject(strResult.Trim());
+                }
+            }
+        }
+
+        public string ImageToText(string imgPath)
+        {
+            using (var engine = new TesseractEngine("tessdata", "eng", EngineMode.Default))
+            {
+                using (var img = Pix.LoadFromFile(imgPath))
+                {
+                    using (var page = engine.Process(img))
+                    {
+                        return page.GetText();
+                    }
+                }
+            }
+        }
+        public List<ABIPVR> alldata = new();
+        private void BTN_ALL_Click(object sender, RoutedEventArgs e)
+        {
+            //string Sample = String.Empty;
+            string[] FileCollection = Directory.GetFiles(Environment.CurrentDirectory + @"\data", "*.csv", SearchOption.AllDirectories);
+            if (FileCollection.Length <= 0)
+                return;
+            //List<string> FileNames = new List<string>();
+            //foreach (var x in FileCollection)
+            //    FileNames.Add(System.IO.Path.GetFileName(x));
+            //Sample = File.ReadAllText("Sample.txt");
+            alldata.Clear();
+            Loaddatabase();
+            for (int i = 0; i < FileCollection.Length; i++)
+            {            
+                if (!DateTime.TryParseExact(System.IO.Path.GetFileName(FileCollection[i]).Split('_')[1]
+                    + System.IO.Path.GetFileName(FileCollection[i]).Split('_')[2].Replace(".csv", ""),
+                    "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime studytime))
+                    continue;
+                if (!int.TryParse(System.IO.Path.GetFileName(FileCollection[i]).Split('_')[0], out int id))
+                    continue;
+                if (alldata.FirstOrDefault(x => x.ID == id && x.StudyTime == studytime) != null)
+                    continue;
+                if ((DateTime.Now - studytime).TotalDays >= 365)
+                    continue;
+                string[] newabi = File.ReadAllText(FileCollection[i]).Split(',');
+                if (newabi.Length < 17)
+                    continue;
+                var imgPath = FileCollection[i].Replace("csv", "jpg");
+                IImageFormat format;
+                var img = SixLabors.ImageSharp.Image.Load(imgPath, out format);
+                var clone = img.Clone(
+                        i => i.Crop(new SixLabors.ImageSharp.Rectangle(900, 200, 300, 90)));
+                var ms = new MemoryStream();
+                clone.Save(ms, format);
+                var engine = new TesseractEngine("tessdata", "eng", EngineMode.Default);
+                string strResult = engine.Process(Pix.LoadFromMemory(ms.ToArray())).GetText();
+                var match = Regex.Match(strResult, @"\d+");
+                if (!match.Success)
+                    continue;
+                if (!int.TryParse(match.Groups[0].Value, out int age) || age < 10)
+                    continue;
+                ABIPVR abidata = new()
+                {
+                    rpwv_r = int.TryParse(newabi[0], out int count) ? count : 0,
+                    lpwv_r = int.TryParse(newabi[1], out count) ? count : 0,
+                    RSBP = double.TryParse(newabi[5], out double counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                    RDBP = double.TryParse(newabi[6], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                    LSBP = double.TryParse(newabi[8], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                    LDBP = double.TryParse(newabi[9], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                    RSBP_A = double.TryParse(newabi[11], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                    RDBP_A = double.TryParse(newabi[12], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                    LSBP_A = double.TryParse(newabi[14], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                    LDBP_A = double.TryParse(newabi[15], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                    rabi_r = double.TryParse(newabi[3], out counts) ? counts : 0,
+                    labi_r = double.TryParse(newabi[4], out counts) ? counts : 0,
+                    StudyTime = studytime,
+                    ID = id,
+                    Age = age
+                };
+                alldata.Add(abidata);
+                /*
+                List<double> abidata = new List<double>();
+                for (int j = 0; j < newabi.Length; j++)
+                {
+                    if (j <= 4)
+                        abidata.Add(Convert.ToDouble(newabi[j]));
+                    else
+                        abidata.Add(Math.Round(Convert.ToDouble(newabi[j]), 0, MidpointRounding.AwayFromZero));
+                }
+                /*
+                ///if (i == 0)
+                ///    rTB_00.Document.Blocks.Clear();
+                if (abidata.Count < 17)
+                    continue;
+                string Result = Sample.Replace("<<RABI>>", abidata[3].ToString()).Replace("<<LABI>>", abidata[4].ToString()).Replace("<<RPWV>>", abidata[0].ToString()).Replace("<<LPWV>>", abidata[1].ToString());
+                //Result = Result.Replace("<<RBSBP>>", String.Format("{0:000}", (int)abidata[5])).Replace("<<RBDBP>>", String.Format("{0:000}", (int)abidata[7])).Replace("<<LBSBP>>", String.Format("{0:000}", (int)abidata[8])).Replace("<<LBDBP>>", String.Format("{0:000}", (int)abidata[10]));
+                Result = Result.Replace("<<RBSBP>>", String.Format("{0,3}", abidata[5].ToString())).Replace("<<RBDBP>>", String.Format("{0,3}", abidata[7].ToString())).Replace("<<LBSBP>>", String.Format("{0,3}", abidata[8].ToString())).Replace("<<LBDBP>>", String.Format("{0,3}", abidata[10].ToString()));
+                Result = Result.Replace("<<RASBP>>", String.Format("{0,3}", abidata[11].ToString())).Replace("<<RADBP>>", String.Format("{0,3}", abidata[13].ToString())).Replace("<<LASBP>>", String.Format("{0,3}", abidata[14].ToString())).Replace("<<LADBP>>", String.Format("{0,3}", abidata[16].ToString()));
+                string comment = String.Empty;
+                if (abidata[3] <= 0.9 && abidata[4] <= 0.9)
+                    comment = "Arteral Stenosis over bilateral lower limbs.";
+                else if (abidata[3] < 0.9)
+                    comment = "Arteral Stenosis over Right lower limbs";
+                else if (abidata[4] <= 0.9)
+                    comment = "Arteral Stenosis over Left lower limbs";
+                else
+                    comment = "No Evidence of Arteral Stenosis over bilateral lower limbs.";
+                Result = Result.Replace("<<RESULT>>", comment);
+                ///rTB_00.Document.Blocks.Add(new Paragraph(new Run(FileNames[i])));
+                ///rTB_00.Document.Blocks.Add(new Paragraph(new Run(Environment.NewLine)));
+                ///rTB_00.Document.Blocks.Add(new Paragraph(new Run(Result)));
+                ///rTB_00.Document.Blocks.Add(new Paragraph(new Run(Environment.NewLine)));
+                File.WriteAllText(FileCollection[i].Replace("csv", "txt"), Result);
+                */
+            }
+            alldata.Sort((x, y) => x.ID.CompareTo(y.ID));
+            if (alldata.Count > 0)
+                MessageBox.Show("載入成功: 共載入 " + alldata.Count + "份資料。");
+            Savedatabase();
+        }
+        private void LoadData()
+        {
+            if (alldata.Count <= 0 || !int.TryParse(ID.Text, out int id) || id <= 0)
+                return;
+            var abidata = alldata.Where(x => x.ID == id).ToList();
+            if (abidata == null || abidata.Count <= 0)
+                return;
+            abidata.Sort((x, y) => -x.StudyTime.CompareTo(y.StudyTime));
+            var abipvr = abidata.FirstOrDefault();
+            if (abipvr == null)
+                return;
+            RSBP.Text = abipvr.RSBP.ToString();
+            RDBP.Text = abipvr.RDBP.ToString();
+            LSBP.Text = abipvr.LSBP.ToString();
+            LDBP.Text = abipvr.LDBP.ToString();
+            RSBP_A.Text = abipvr.RSBP_A.ToString();
+            RDBP_A.Text = abipvr.RDBP_A.ToString();
+            LSBP_A.Text = abipvr.LSBP_A.ToString();
+            LDBP_A.Text = abipvr.LDBP_A.ToString();
+            RABI.Text = abipvr.rabi_r.ToString();
+            LABI.Text = abipvr.labi_r.ToString();
+            RPWV.Text = abipvr.rpwv_r.ToString();
+            LPWV.Text = abipvr.lpwv_r.ToString();
+            Age.Text = abipvr.Age.ToString();
+            LPWV.Focus();
+        }
+        private void ClearData()
+        {
+            RSBP.Text = RDBP.Text = LSBP.Text = LDBP.Text = RSBP_A.Text = RDBP_A.Text = LSBP_A.Text = LDBP_A.Text
+                = RABI.Text = LABI.Text = RPWV.Text = LPWV.Text = string.Empty;
+        }
+        private void Savedatabase()
+        {
+            string PtTpr = JsonConvert.SerializeObject(alldata, Formatting.Indented);
+            File.WriteAllText(System.AppDomain.CurrentDomain.BaseDirectory + @"db\database.json", PtTpr);
+            File.WriteAllText(System.AppDomain.CurrentDomain.BaseDirectory + @"db\database_" + DateTime.Now.ToString("yyyyMMdd") + ".json", PtTpr);
+        }
+        private void Loaddatabase()
+        {
+            alldata.Clear();
+            if (!File.Exists(System.AppDomain.CurrentDomain.BaseDirectory + @"db\database.json"))
+                return;
+            alldata = JsonConvert.DeserializeObject<List<ABIPVR>>(File.ReadAllText(System.AppDomain.CurrentDomain.BaseDirectory + @"db\database.json"));
+        }
+        private void comB_ID_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (comB_ID.SelectedIndex < 0)
+                return;
+            ID.Text = Convert.ToInt32(comB_ID.SelectedValue).ToString();
+            Age.Text = alldata.FirstOrDefault(x => x.ID == Convert.ToInt32(comB_ID.SelectedValue)).Age.ToString();
+        }
+        private void ComB_Date_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            comB_ID.ItemsSource = alldata.Where(x => x.StudyTime.ToString("yyyyMMdd") == ComB_Date.SelectedValue.ToString()).Select(x => x.ID).ToList();
+            comB_ID.SelectedIndex = 0;
+        }
     }
     public class ABIPVR
     {
         public int ID;
         public int Age;
-        public int rsbp;
-        public int rdbp;
-        public int rrr;
-        public int lsbp;
-        public int ldbp;
-        public int lrr;
+        public int RSBP;
+        public int RDBP;
+        public int RPR;
+        public int LSBP;
+        public int LDBP;
+        public int LPR;
+        public int RSBP_A;
+        public int RDBP_A;
+        public int RPR_A;
+        public int LSBP_A;
+        public int LDBP_A;
+        public int LPR_A;
         public double rabi_r;
         public double labi_r;
         public int rpwv_r;
@@ -181,13 +405,14 @@ namespace PVR
         public int lpvr_r;
         public int rut;
         public int lut;
+        public DateTime StudyTime;
         public bool bp_p
         {
             get
             {
-                if (rsbp <= 0 || lsbp <= 0 || rdbp <= 0 || ldbp <= 0)
+                if (RSBP <= 0 || LSBP <= 0 || RDBP <= 0 || LDBP <= 0)
                     return false;
-                if (Math.Abs(rsbp - lsbp) >= 15 || Math.Abs(rdbp - ldbp) >= 15)
+                if (Math.Abs(RSBP - LSBP) >= 15 || Math.Abs(RDBP - LDBP) >= 15)
                     return true;
                 return false;
             }

@@ -61,7 +61,7 @@ namespace PVR
         }
     }
 
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         static public void TraverseVisualTree(Visual myMainWindow)
         {
@@ -184,12 +184,20 @@ namespace PVR
                 ((UIElement)Keyboard.FocusedElement).MoveFocus(new TraversalRequest(FocusNavigationDirection.Previous));
             }
         }
+        private void ID_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Age.Text = string.Empty;
+        }
         private void Age_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (int.TryParse(Age.Text, out PVRData.Age))
             {
 
             }
+            if (ID.Text.Length > 0 && Age.Text.Length >= 2)
+                LoadData();
+            else
+                ClearData();
             if (Age.Text.Length == 2)
             {
                 if (int.TryParse(Age.Text, out int age) && age / 10.0 >= 1.5)
