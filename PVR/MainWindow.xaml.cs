@@ -51,12 +51,6 @@ namespace PVR
         {
             Age.Focus();
             Loaddatabase();
-            /*
-            if (alldata.Count > 0)
-            {
-                comB_ID.ItemsSource = alldata.Select(x => x.ID).ToList();
-                comB_ID.SelectedIndex = 0;
-            }*/
             if (alldata.Count > 0)
             {
                 var datedata = alldata.Select(x => x.StudyTime.ToString("yyyyMMdd")).ToList().Distinct().ToList();
@@ -393,8 +387,7 @@ namespace PVR
                 return;
             try
             {
-                IImageFormat format;
-                var img = SixLabors.ImageSharp.Image.Load(ptPath, out format);
+                var img = SixLabors.ImageSharp.Image.Load(ptPath);
                 var clone = img.Clone(
                         i => i.Crop(new SixLabors.ImageSharp.Rectangle(215, 1150, 420, 400)));
                 var ms = new MemoryStream();
@@ -405,16 +398,6 @@ namespace PVR
                 imgsource.StreamSource = ms;
                 imgsource.EndInit();
                 IMG_00.Source = imgsource;
-                return;
-                Uri fileUri = new Uri(ptPath);
-                IMG_00.Source = new BitmapImage(fileUri);
-                /*
-                BitmapImage bi3 = new BitmapImage();
-                bi3.BeginInit();
-                bi3.UriSource = new Uri(ptPath, UriKind.Relative);
-                bi3.EndInit();
-                IMG_00.Source = bi3;
-                */
             }
             catch (Exception ex)
             {
