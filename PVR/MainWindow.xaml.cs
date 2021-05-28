@@ -246,7 +246,7 @@ namespace PVR
                     continue;
                 if (alldata.FirstOrDefault(x => x.ID == id && x.StudyTime == studytime) != null)
                     continue;
-                if ((DateTime.Now - studytime).TotalDays >= 365)
+                if ((DateTime.Now - studytime).TotalDays >= 30)
                     continue;
                 string[] newabi = File.ReadAllText(FileCollection[i]).Split(',');
                 if (newabi.Length < 17)
@@ -374,6 +374,52 @@ namespace PVR
                 return;
             ID.Text = Convert.ToInt32(comB_ID.SelectedValue).ToString();
             Age.Text = alldata.FirstOrDefault(x => x.ID == Convert.ToInt32(comB_ID.SelectedValue)).Age.ToString();
+            
+            var imgPath = System.AppDomain.CurrentDomain.BaseDirectory + @"data\" + ComB_Date.SelectedValue.ToString();
+            string[] FileCollection = Directory.GetFiles(imgPath, "*.jpg", SearchOption.AllDirectories);
+            if (FileCollection.Length <= 0)
+                return;
+            string ptPath = string.Empty;
+            foreach (var x in FileCollection)
+            {
+                if (x.Contains(comB_ID.SelectedValue.ToString()))
+                {
+                    ptPath = x;
+                }
+            }
+            if (ptPath == string.Empty)
+                return;
+            if (!File.Exists(ptPath))
+                return;
+            try
+            {
+                IImageFormat format;
+                var img = SixLabors.ImageSharp.Image.Load(ptPath, out format);
+                var clone = img.Clone(
+                        i => i.Crop(new SixLabors.ImageSharp.Rectangle(215, 1150, 420, 400)));
+                var ms = new MemoryStream();
+                clone.SaveAsJpeg(ms);
+                ms.Position = 0;
+                var imgsource = new BitmapImage();
+                imgsource.BeginInit();
+                imgsource.StreamSource = ms;
+                imgsource.EndInit();
+                IMG_00.Source = imgsource;
+                return;
+                Uri fileUri = new Uri(ptPath);
+                IMG_00.Source = new BitmapImage(fileUri);
+                /*
+                BitmapImage bi3 = new BitmapImage();
+                bi3.BeginInit();
+                bi3.UriSource = new Uri(ptPath, UriKind.Relative);
+                bi3.EndInit();
+                IMG_00.Source = bi3;
+                */
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
         }
         private void ComB_Date_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
