@@ -5,8 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PVR"
         mc:Ignorable="d"
-        Title="PVR&amp;ABI" Height="447" Width="896" Loaded="My_Window_Loaded" WindowStartupLocation="CenterScreen" SizeToContent="Manual" ResizeMode="CanMinimize">
+        Title="PVR&amp;ABI" Height="499" Width="919" Loaded="My_Window_Loaded" WindowStartupLocation="CenterScreen" SizeToContent="Manual" ResizeMode="CanMinimize">
     <Grid Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="582*"/>
+            <ColumnDefinition Width="337*"/>
+        </Grid.ColumnDefinitions>
         <Label Content="ID" HorizontalAlignment="Left" Margin="21,33,0,0" VerticalAlignment="Top" FontSize="16"/>
         <TextBox x:Name="ID" HorizontalAlignment="Left" Margin="111,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="100" MaxLength="8" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="0" FontSize="16" IsTabStop="False" TextChanged="ID_TextChanged" />
         <Label Content="Age" HorizontalAlignment="Left" Margin="251,33,0,0" VerticalAlignment="Top" FontSize="16"/>
@@ -47,13 +51,14 @@
         <TextBox x:Name="LUT" HorizontalAlignment="Left" Margin="330,283,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="21" FontSize="16" TextChanged="LUT_TextChanged"/>
         <Label Content="ms" HorizontalAlignment="Left" Margin="172,279,0,0" VerticalAlignment="Top" FontSize="16"/>
         <Label Content="ms" HorizontalAlignment="Left" Margin="397,279,0,0" VerticalAlignment="Top" RenderTransformOrigin="11.216,0.691" FontSize="16"/>
-        <Button x:Name="Report" Content="複製報告" HorizontalAlignment="Left" Margin="314,323,0,0" VerticalAlignment="Top" RenderTransformOrigin="2.094,0.64" Click="Report_Click" TabIndex="99" PreviewKeyDown="TB5_PreviewKeyDown" FontSize="16" Width="100"/>
-        <Button x:Name="BT_Clear" Content="清除" HorizontalAlignment="Left" Margin="21,323,0,0" VerticalAlignment="Top" Click="BT_Clear_Click" IsTabStop="False" FontSize="16" Width="100"/>
-        <Button x:Name="BTN_TOP" Content="最上層" HorizontalAlignment="Left" Margin="166,323,0,0" VerticalAlignment="Top" IsTabStop="False" Click="BTN_TOP_Click" FontSize="16" Width="100"/>
-        <Button x:Name="BTN_OCR" Content="OCR" HorizontalAlignment="Left" Margin="166,354,0,0" VerticalAlignment="Top" IsTabStop="False" FontSize="16" Width="100" Click="BTN_OCR_Click"/>
-        <Button x:Name="BTN_OCR_Copy" Content="載入資料" HorizontalAlignment="Left" Margin="21,354,0,0" VerticalAlignment="Top" IsTabStop="False" FontSize="16" Width="100" Click="BTN_ALL_Click"/>
+        <Button x:Name="Report" Content="複製報告" HorizontalAlignment="Left" Margin="314,339,0,0" VerticalAlignment="Top" RenderTransformOrigin="2.094,0.64" Click="Report_Click" TabIndex="99" PreviewKeyDown="TB5_PreviewKeyDown" FontSize="16" Width="100" Height="32"/>
+        <Button x:Name="BT_Clear" Content="清除" HorizontalAlignment="Left" Margin="21,339,0,0" VerticalAlignment="Top" Click="BT_Clear_Click" IsTabStop="False" FontSize="16" Width="100" Height="32"/>
+        <Button x:Name="BTN_TOP" Content="最上層" HorizontalAlignment="Left" Margin="166,339,0,0" VerticalAlignment="Top" IsTabStop="False" Click="BTN_TOP_Click" FontSize="16" Width="100" Height="32"/>
+        <Button x:Name="BTN_OCR" Content="OCR" HorizontalAlignment="Left" Margin="166,413,0,0" VerticalAlignment="Top" IsTabStop="False" FontSize="16" Width="100" Click="BTN_OCR_Click" IsEnabled="False"/>
+        <Button x:Name="BTN_OCR_Copy" Content="載入資料" HorizontalAlignment="Left" Margin="21,413,0,0" VerticalAlignment="Top" IsTabStop="False" FontSize="16" Width="100" Click="BTN_ALL_Click"/>
         <ComboBox x:Name="comB_ID" HorizontalAlignment="Left" Margin="330,10,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="comB_ID_SelectionChanged"/>
         <ComboBox x:Name="ComB_Date" HorizontalAlignment="Left" Margin="111,10,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="ComB_Date_SelectionChanged"/>
-        <Image x:Name="IMG_00" HorizontalAlignment="Left" Height="420" Margin="467,10,0,0" VerticalAlignment="Top" Width="400"/>
+        <Image x:Name="IMG_00" HorizontalAlignment="Left" Height="400" Margin="484,63,0,0" VerticalAlignment="Top" Width="420" Grid.ColumnSpan="2"/>
+        <Image x:Name="IMG_01" HorizontalAlignment="Left" Height="50" Margin="544,10,0,0" VerticalAlignment="Top" Width="300" Grid.ColumnSpan="2"/>
     </Grid>
 </Window>

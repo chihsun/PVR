@@ -194,10 +194,12 @@ namespace PVR
             {
 
             }
+            /*
             if (ID.Text.Length > 0 && Age.Text.Length >= 2)
                 LoadData();
             else
                 ClearData();
+            */
             if (Age.Text.Length == 2)
             {
                 if (int.TryParse(Age.Text, out int age) && age / 10.0 >= 1.5)
@@ -205,6 +207,10 @@ namespace PVR
             }
             else if (Age.Text.Length == 3)
                 ((UIElement)Keyboard.FocusedElement).MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+            if (Age.Text.Length >= 2 && (RABI.Text.Length > 0 || LABI.Text.Length > 0))
+            {
+                RPVR.Focus();
+            }
         }
         private void RPWV_TextChanged(object sender, TextChangedEventArgs e)
         {

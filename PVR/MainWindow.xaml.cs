@@ -69,6 +69,11 @@ namespace PVR
                 MessageBox.Show("找不到範例檔", "錯誤", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
                 return;
             }
+            if (PVRData.Age <= 10)
+            {
+                MessageBox.Show("年齡未輸入", "錯誤", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                return;
+            }
             if (int.TryParse(RSBP.Text, out PVRData.RSBP)
                 & int.TryParse(LSBP.Text, out PVRData.LSBP)
                 & int.TryParse(RDBP.Text, out PVRData.RDBP)
@@ -93,22 +98,48 @@ namespace PVR
             ABIReport = ABIReport.Replace("<<RPVR>>", PVRData.rpvr_r > 0 ? PVRData.rpvr_r.ToString() : "--").Replace("<<LPVR>>", PVRData.lpvr_r > 0 ? PVRData.lpvr_r.ToString() : "--");
 
             ABIReport = ABIReport.Replace("<<RUT>>", PVRData.rut > 0 ? PVRData.rut.ToString() : "---").Replace("<<LUT>>", PVRData.lut > 0 ? PVRData.lut.ToString() : "---");
+            if (string.IsNullOrEmpty(RPVR.Text) || string.IsNullOrEmpty(RPVR.Text) || string.IsNullOrEmpty(RPVR.Text) || string.IsNullOrEmpty(RPVR.Text))
+            {
+                AutoClosingMessageBox.Show("資料輸入未完全！請再次確認", "警告", 1000);
+                //MessageBox.Show("資料輸入未完全！請再次確認", "警告", MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.OK);
+            }    
             /*
              * Conclusion
              */
             List<string> Conclusion = new();
+            int index = 0;
             if (!string.Equals(PVRData.abiconclude(PVRData.rabi_r), "Normal"))
+            {
                 Conclusion.Add(PVRData.abiconclude(PVRData.rabi_r) + " over right lower limbs");
+                index = 1;
+            }
             if (!string.Equals(PVRData.abiconclude(PVRData.labi_r), "Normal"))
+            {
                 Conclusion.Add(PVRData.abiconclude(PVRData.labi_r) + " over left lower limbs");
-            if (Conclusion.Count == 0)
+                if (index == 1)
+                    index = 3;
+                else
+                    index = 2;
+            }
+            if (Conclusion.Count < 2)
             {
                 if (PVRData.rpwv_stiff && PVRData.lpwv_stiff)
-                    Conclusion.Add("Arterial stiffness over both lower limbs");
-                else if (PVRData.rpwv_stiff)
+                {
+                    if (index == 0)
+                        Conclusion.Add("Arterial stiffness over both lower limbs");
+                    else if (index == 1)
+                        Conclusion.Add("Arterial stiffness over left lower limbs");
+                    else if (index == 2)
+                        Conclusion.Add("Arterial stiffness over right lower limbs");
+                }
+                else if (PVRData.rpwv_stiff && index == 2)
+                {
                     Conclusion.Add("Arterial stiffness over right lower limbs");
-                else if (PVRData.lpwv_stiff)
+                }
+                else if (PVRData.lpwv_stiff && index == 1)
+                {
                     Conclusion.Add("Arterial stiffness over left lower limbs");
+                }
             }
             if (Conclusion.Count == 0)
                 Conclusion.Add("No evidence of arterial stenosis over lower limbs");
@@ -165,7 +196,8 @@ namespace PVR
             {
                 MessageBox.Show(ex.ToString());
             }
-            MessageBox.Show("匯出成功", "匯出", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
+            AutoClosingMessageBox.Show("匯出成功", "匯出", 500);
+            //MessageBox.Show("匯出成功", "匯出", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
         }
 
         private void BTN_TOP_Click(object sender, RoutedEventArgs e)
@@ -236,29 +268,41 @@ namespace PVR
                     + System.IO.Path.GetFileName(FileCollection[i]).Split('_')[2].Replace(".csv", ""),
                     "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime studytime))
                     continue;
+                if ((DateTime.Now - studytime).TotalDays >= 60)
+                    continue;
                 if (!int.TryParse(System.IO.Path.GetFileName(FileCollection[i]).Split('_')[0], out int id))
                     continue;
                 if (alldata.FirstOrDefault(x => x.ID == id && x.StudyTime == studytime) != null)
                     continue;
-                if ((DateTime.Now - studytime).TotalDays >= 30)
-                    continue;
+
                 string[] newabi = File.ReadAllText(FileCollection[i]).Split(',');
                 if (newabi.Length < 17)
                     continue;
                 var imgPath = FileCollection[i].Replace("csv", "jpg");
-                IImageFormat format;
-                var img = SixLabors.ImageSharp.Image.Load(imgPath, out format);
-                var clone = img.Clone(
-                        i => i.Crop(new SixLabors.ImageSharp.Rectangle(900, 200, 300, 90)));
-                var ms = new MemoryStream();
-                clone.Save(ms, format);
-                var engine = new TesseractEngine("tessdata", "eng", EngineMode.Default);
-                string strResult = engine.Process(Pix.LoadFromMemory(ms.ToArray())).GetText();
-                var match = Regex.Match(strResult, @"\d+");
-                if (!match.Success)
-                    continue;
-                if (!int.TryParse(match.Groups[0].Value, out int age) || age < 10)
-                    continue;
+                ///OCR Age
+                int age = 0;
+                if (File.Exists(imgPath))
+                {
+                    IImageFormat format;
+                    var img = SixLabors.ImageSharp.Image.Load(imgPath, out format);
+                    var clone = img.Clone(
+                            i => i.Crop(new SixLabors.ImageSharp.Rectangle(1050, 200, 150, 70)));
+                    var ms = new MemoryStream();
+                    clone.Save(ms, format);
+                    var engine = new TesseractEngine("tessdata", "eng", EngineMode.Default);
+                    string strResult = engine.Process(Pix.LoadFromMemory(ms.ToArray())).GetText();
+                    var match = Regex.Match(strResult, @"\d+");
+                    if (match.Success)
+                    {
+                        if (int.TryParse(match.Groups[0].Value, out int i_age) && i_age > 10)
+                            age = i_age;
+                    }
+                    /*
+                    var clone2 = img.Clone(
+                            i => i.Crop(new SixLabors.ImageSharp.Rectangle(475, 1230, 95, 45)));
+                    clone2.SaveAsJpeg(System.AppDomain.CurrentDomain.BaseDirectory + @"db\age\Age_" + System.IO.Path.GetFileName(imgPath));
+                    */
+                }
                 ABIPVR abidata = new()
                 {
                     rpwv_r = int.TryParse(newabi[0], out int count) ? count : 0,
@@ -317,6 +361,15 @@ namespace PVR
             if (alldata.Count > 0)
                 MessageBox.Show("載入成功: 共載入 " + alldata.Count + "份資料。");
             Savedatabase();
+            /// reload form
+            Age.Focus();
+            if (alldata.Count > 0)
+            {
+                var datedata = alldata.Select(x => x.StudyTime.ToString("yyyyMMdd")).ToList().Distinct().ToList();
+                datedata.Sort((x, y) => -x.CompareTo(y));
+                ComB_Date.ItemsSource = datedata;
+                ComB_Date.SelectedIndex = 0;
+            }
         }
         private void LoadData()
         {
@@ -341,13 +394,16 @@ namespace PVR
             LABI.Text = abipvr.labi_r.ToString();
             RPWV.Text = abipvr.rpwv_r.ToString();
             LPWV.Text = abipvr.lpwv_r.ToString();
-            Age.Text = abipvr.Age.ToString();
-            LPWV.Focus();
+            Age.Text = abipvr.Age <= 10 ? string.Empty : abipvr.Age.ToString();
+            if (abipvr.Age <= 10)
+                Age.Focus();
+            else
+                RPVR.Focus();
         }
         private void ClearData()
         {
-            RSBP.Text = RDBP.Text = LSBP.Text = LDBP.Text = RSBP_A.Text = RDBP_A.Text = LSBP_A.Text = LDBP_A.Text
-                = RABI.Text = LABI.Text = RPWV.Text = LPWV.Text = string.Empty;
+            ID.Text = Age.Text = RSBP.Text = RDBP.Text = LSBP.Text = LDBP.Text = RSBP_A.Text = RDBP_A.Text = LSBP_A.Text = LDBP_A.Text
+                = RABI.Text = LABI.Text = RPWV.Text = LPWV.Text = RPVR.Text = LPVR.Text = RUT.Text = LUT.Text = string.Empty;
         }
         private void Savedatabase()
         {
@@ -366,9 +422,11 @@ namespace PVR
         {
             if (comB_ID.SelectedIndex < 0)
                 return;
+            ClearData();
             ID.Text = Convert.ToInt32(comB_ID.SelectedValue).ToString();
-            Age.Text = alldata.FirstOrDefault(x => x.ID == Convert.ToInt32(comB_ID.SelectedValue)).Age.ToString();
-            
+            //Age.Text = alldata.FirstOrDefault(x => x.ID == Convert.ToInt32(comB_ID.SelectedValue)).Age.ToString();
+            LoadData();
+
             var imgPath = System.AppDomain.CurrentDomain.BaseDirectory + @"data\" + ComB_Date.SelectedValue.ToString();
             string[] FileCollection = Directory.GetFiles(imgPath, "*.jpg", SearchOption.AllDirectories);
             if (FileCollection.Length <= 0)
@@ -381,9 +439,7 @@ namespace PVR
                     ptPath = x;
                 }
             }
-            if (ptPath == string.Empty)
-                return;
-            if (!File.Exists(ptPath))
+            if (string.IsNullOrEmpty(ptPath) || !File.Exists(ptPath))
                 return;
             try
             {
@@ -398,6 +454,18 @@ namespace PVR
                 imgsource.StreamSource = ms;
                 imgsource.EndInit();
                 IMG_00.Source = imgsource;
+
+                clone = img.Clone(
+                        i => i.Crop(new SixLabors.ImageSharp.Rectangle(900, 220, 300, 50)));
+                ms = new MemoryStream();
+                clone.SaveAsJpeg(ms);
+                //clone.SaveAsPng(System.AppDomain.CurrentDomain.BaseDirectory + @"db\age\Age_" + System.IO.Path.GetFileName(imgPath) + ".png");
+                ms.Position = 0;
+                imgsource = new BitmapImage();
+                imgsource.BeginInit();
+                imgsource.StreamSource = ms;
+                imgsource.EndInit();
+                IMG_01.Source = imgsource;
             }
             catch (Exception ex)
             {
@@ -536,5 +604,35 @@ namespace PVR
                 return false;
             }
         }
+    }
+    public class AutoClosingMessageBox
+    {
+        System.Threading.Timer _timeoutTimer;
+        string _caption;
+        AutoClosingMessageBox(string text, string caption, int timeout)
+        {
+            _caption = caption;
+            _timeoutTimer = new System.Threading.Timer(OnTimerElapsed,
+                null, timeout, System.Threading.Timeout.Infinite);
+            MessageBox.Show(text, caption);
+        }
+
+        public static void Show(string text, string caption, int timeout)
+        {
+            new AutoClosingMessageBox(text, caption, timeout);
+        }
+
+        void OnTimerElapsed(object state)
+        {
+            IntPtr mbWnd = FindWindow(null, _caption);
+            if (mbWnd != IntPtr.Zero)
+                SendMessage(mbWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+            _timeoutTimer.Dispose();
+        }
+        const int WM_CLOSE = 0x0010;
+        [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+        static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+        [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+        static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);
     }
 }
