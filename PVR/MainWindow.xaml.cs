@@ -371,17 +371,17 @@ namespace PVR
                 ComB_Date.SelectedIndex = 0;
             }
         }
-        private void LoadData()
+        private bool LoadData(string IDText)
         {
-            if (alldata.Count <= 0 || !int.TryParse(ID.Text, out int id) || id <= 0)
-                return;
+            if (alldata.Count <= 0 || !int.TryParse(IDText, out int id) || id <= 0)
+                return false;
             var abidata = alldata.Where(x => x.ID == id).ToList();
             if (abidata == null || abidata.Count <= 0)
-                return;
+                return false;
             abidata.Sort((x, y) => -x.StudyTime.CompareTo(y.StudyTime));
             var abipvr = abidata.FirstOrDefault();
             if (abipvr == null)
-                return;
+                return false;
             RSBP.Text = abipvr.RSBP.ToString();
             RDBP.Text = abipvr.RDBP.ToString();
             LSBP.Text = abipvr.LSBP.ToString();
@@ -399,6 +399,7 @@ namespace PVR
                 Age.Focus();
             else
                 RPVR.Focus();
+            return true;
         }
         private void ClearData()
         {
@@ -407,9 +408,16 @@ namespace PVR
         }
         private void Savedatabase()
         {
-            string PtTpr = JsonConvert.SerializeObject(alldata, Formatting.Indented);
-            File.WriteAllText(System.AppDomain.CurrentDomain.BaseDirectory + @"db\database.json", PtTpr);
-            File.WriteAllText(System.AppDomain.CurrentDomain.BaseDirectory + @"db\database_" + DateTime.Now.ToString("yyyyMMdd") + ".json", PtTpr);
+            try
+            {
+                string PtTpr = JsonConvert.SerializeObject(alldata, Formatting.Indented);
+                File.WriteAllText(System.AppDomain.CurrentDomain.BaseDirectory + @"db\database.json", PtTpr);
+                File.WriteAllText(System.AppDomain.CurrentDomain.BaseDirectory + @"db\database_" + DateTime.Now.ToString("yyyyMMdd") + ".json", PtTpr);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
         }
         private void Loaddatabase()
         {
@@ -425,7 +433,8 @@ namespace PVR
             ClearData();
             ID.Text = Convert.ToInt32(comB_ID.SelectedValue).ToString();
             //Age.Text = alldata.FirstOrDefault(x => x.ID == Convert.ToInt32(comB_ID.SelectedValue)).Age.ToString();
-            LoadData();
+            if (LoadData(ID.Text) == false)
+                return;
 
             var imgPath = System.AppDomain.CurrentDomain.BaseDirectory + @"data\" + ComB_Date.SelectedValue.ToString();
             string[] FileCollection = Directory.GetFiles(imgPath, "*.jpg", SearchOption.AllDirectories);
@@ -476,6 +485,28 @@ namespace PVR
         {
             comB_ID.ItemsSource = alldata.Where(x => x.StudyTime.ToString("yyyyMMdd") == ComB_Date.SelectedValue.ToString()).Select(x => x.ID).ToList();
             comB_ID.SelectedIndex = 0;
+        }
+
+        private void CB_NoDate_Checked(object sender, RoutedEventArgs e)
+        {
+            ComB_Date.IsEnabled = false;
+            ComB_Date.Opacity = 0;
+            if (alldata.Count > 0)
+            {
+                comB_ID.ItemsSource = alldata.Where(x => x.StudyTime.AddMonths(3) > DateTime.Now).Select(x => x.ID).ToList();
+                comB_ID.SelectedIndex = 0;
+            }
+        }
+
+        private void CB_NoDate_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ComB_Date.IsEnabled = true;
+            ComB_Date.Opacity = 100;
+            if (alldata.Count > 0)
+            {
+                comB_ID.ItemsSource = alldata.Where(x => x.StudyTime.ToString("yyyyMMdd") == ComB_Date.SelectedValue.ToString()).Select(x => x.ID).ToList();
+                comB_ID.SelectedIndex = 0;
+            }
         }
     }
     public class ABIPVR

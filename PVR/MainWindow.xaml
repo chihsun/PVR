@@ -60,5 +60,6 @@
         <ComboBox x:Name="ComB_Date" HorizontalAlignment="Left" Margin="111,10,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="ComB_Date_SelectionChanged"/>
         <Image x:Name="IMG_00" HorizontalAlignment="Left" Height="400" Margin="484,63,0,0" VerticalAlignment="Top" Width="420" Grid.ColumnSpan="2"/>
         <Image x:Name="IMG_01" HorizontalAlignment="Left" Height="50" Margin="544,10,0,0" VerticalAlignment="Top" Width="300" Grid.ColumnSpan="2"/>
+        <CheckBox x:Name="CB_NoDate" Content="純病歷號(3M)" HorizontalAlignment="Left" Margin="10,13,0,0" VerticalAlignment="Top" Checked="CB_NoDate_Checked" Unchecked="CB_NoDate_Unchecked"/>
     </Grid>
 </Window>
