@@ -371,9 +371,10 @@ namespace PVR
                 ComB_Date.SelectedIndex = 0;
             }
         }
-        private bool LoadData(string IDText)
+        private bool LoadData()
         {
-            if (alldata.Count <= 0 || !int.TryParse(IDText, out int id) || id <= 0)
+            ID.Text = comB_ID.SelectedValue.ToString();
+            if (alldata.Count <= 0 || !int.TryParse(ID.Text, out int id) || id <= 0)
                 return false;
             var abidata = alldata.Where(x => x.ID == id).ToList();
             if (abidata == null || abidata.Count <= 0)
@@ -426,16 +427,8 @@ namespace PVR
                 return;
             alldata = JsonConvert.DeserializeObject<List<ABIPVR>>(File.ReadAllText(System.AppDomain.CurrentDomain.BaseDirectory + @"db\database.json"));
         }
-        private void comB_ID_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void LoadImage()
         {
-            if (comB_ID.SelectedIndex < 0)
-                return;
-            ClearData();
-            ID.Text = Convert.ToInt32(comB_ID.SelectedValue).ToString();
-            //Age.Text = alldata.FirstOrDefault(x => x.ID == Convert.ToInt32(comB_ID.SelectedValue)).Age.ToString();
-            if (LoadData(ID.Text) == false)
-                return;
-
             var imgPath = System.AppDomain.CurrentDomain.BaseDirectory + @"data\" + ComB_Date.SelectedValue.ToString();
             string[] FileCollection = Directory.GetFiles(imgPath, "*.jpg", SearchOption.AllDirectories);
             if (FileCollection.Length <= 0)
@@ -481,16 +474,53 @@ namespace PVR
                 MessageBox.Show(ex.ToString());
             }
         }
+        private void comB_ID_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (comB_ID.SelectedIndex < 0)
+                return;
+            if (CB_NoDate.IsChecked == true)
+            {
+                var datedata = alldata.Where(x => x.ID.ToString() == comB_ID.SelectedValue.ToString()).Select(x => x.StudyTime.ToString("yyyyMMdd")).ToList();
+                datedata.Sort((x, y) => -x.CompareTo(y));
+                ComB_Date.ItemsSource = datedata;
+                ComB_Date.SelectedIndex = 0;
+            }
+            ClearData();
+            //Age.Text = alldata.FirstOrDefault(x => x.ID == Convert.ToInt32(comB_ID.SelectedValue)).Age.ToString();
+            if (LoadData())
+            {
+                LoadImage();
+            }
+            
+        }
         private void ComB_Date_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            comB_ID.ItemsSource = alldata.Where(x => x.StudyTime.ToString("yyyyMMdd") == ComB_Date.SelectedValue.ToString()).Select(x => x.ID).ToList();
-            comB_ID.SelectedIndex = 0;
+            if (CB_NoDate.IsChecked == false)
+            {
+                comB_ID.ItemsSource = alldata.Where(x => x.StudyTime.ToString("yyyyMMdd") == ComB_Date.SelectedValue.ToString()).Select(x => x.ID).ToList();
+                comB_ID.SelectedIndex = 0;
+            }
+            else
+            {
+                if (ComB_Date.SelectedIndex < 0)
+                    return;
+                ClearData();
+                if (LoadData())
+                {
+                    try
+                    {
+                        LoadImage();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.ToString());
+                    }
+                }
+            }
         }
 
         private void CB_NoDate_Checked(object sender, RoutedEventArgs e)
         {
-            ComB_Date.IsEnabled = false;
-            ComB_Date.Opacity = 0;
             if (alldata.Count > 0)
             {
                 comB_ID.ItemsSource = alldata.Where(x => x.StudyTime.AddMonths(3) > DateTime.Now).Select(x => x.ID).ToList();
@@ -500,10 +530,13 @@ namespace PVR
 
         private void CB_NoDate_Unchecked(object sender, RoutedEventArgs e)
         {
-            ComB_Date.IsEnabled = true;
-            ComB_Date.Opacity = 100;
             if (alldata.Count > 0)
             {
+                var datedata = alldata.Select(x => x.StudyTime.ToString("yyyyMMdd")).ToList().Distinct().ToList();
+                datedata.Sort((x, y) => -x.CompareTo(y));
+                ComB_Date.ItemsSource = datedata;
+                ComB_Date.SelectedIndex = 0;
+
                 comB_ID.ItemsSource = alldata.Where(x => x.StudyTime.ToString("yyyyMMdd") == ComB_Date.SelectedValue.ToString()).Select(x => x.ID).ToList();
                 comB_ID.SelectedIndex = 0;
             }
