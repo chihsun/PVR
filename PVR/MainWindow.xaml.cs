@@ -376,13 +376,13 @@ namespace PVR
             ID.Text = comB_ID.SelectedValue.ToString();
             if (alldata.Count <= 0 || !int.TryParse(ID.Text, out int id) || id <= 0)
                 return false;
-            var abidata = alldata.Where(x => x.ID == id).ToList();
-            if (abidata == null || abidata.Count <= 0)
-                return false;
-            abidata.Sort((x, y) => -x.StudyTime.CompareTo(y.StudyTime));
-            var abipvr = abidata.FirstOrDefault();
+            var abipvr = alldata.FirstOrDefault(x => x.ID == id && x.StudyTime.ToString("yyyyMMdd") == ComB_Date.SelectedValue.ToString());
             if (abipvr == null)
                 return false;
+            //abidata.Sort((x, y) => -x.StudyTime.CompareTo(y.StudyTime));
+            //var abipvr = abidata.FirstOrDefault();
+            //if (abipvr == null)
+            //    return false;
             RSBP.Text = abipvr.RSBP.ToString();
             RDBP.Text = abipvr.RDBP.ToString();
             LSBP.Text = abipvr.LSBP.ToString();
