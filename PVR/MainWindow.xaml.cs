@@ -219,13 +219,12 @@ namespace PVR
             if (dlg.ShowDialog() == true)
             {
                 var imgPath = dlg.FileName;
-                IImageFormat format;
-                SixLabors.ImageSharp.Image img = SixLabors.ImageSharp.Image.Load(imgPath, out format);
+                SixLabors.ImageSharp.Image img = SixLabors.ImageSharp.Image.Load(imgPath);
                 var clone = img.Clone(
                         i => i.Crop(new SixLabors.ImageSharp.Rectangle(900, 200, 300, 90)));
                 var engine = new TesseractEngine("tessdata", "eng", EngineMode.Default);
                 var ms = new MemoryStream();
-                clone.Save(ms, format);
+                clone.SaveAsBmp(ms);
                 string strResult = engine.Process(Pix.LoadFromMemory(ms.ToArray())).GetText();
                 //string strResult = ImageToText(imgPath);
 
@@ -233,6 +232,7 @@ namespace PVR
                 {
                     Clipboard.SetDataObject(strResult.Trim());
                 }
+                engine.Dispose();
             }
         }
 
@@ -268,7 +268,7 @@ namespace PVR
                     + System.IO.Path.GetFileName(FileCollection[i]).Split('_')[2].Replace(".csv", ""),
                     "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime studytime))
                     continue;
-                if ((DateTime.Now - studytime).TotalDays >= 60)
+                if ((DateTime.Now - studytime).TotalDays >= 90)
                     continue;
                 if (!int.TryParse(System.IO.Path.GetFileName(FileCollection[i]).Split('_')[0], out int id))
                     continue;
@@ -283,12 +283,11 @@ namespace PVR
                 int age = 0;
                 if (File.Exists(imgPath))
                 {
-                    IImageFormat format;
-                    var img = SixLabors.ImageSharp.Image.Load(imgPath, out format);
+                    var img = SixLabors.ImageSharp.Image.Load(imgPath);
                     var clone = img.Clone(
                             i => i.Crop(new SixLabors.ImageSharp.Rectangle(1050, 200, 150, 70)));
                     var ms = new MemoryStream();
-                    clone.Save(ms, format);
+                    clone.SaveAsBmp(ms);
                     var engine = new TesseractEngine("tessdata", "eng", EngineMode.Default);
                     string strResult = engine.Process(Pix.LoadFromMemory(ms.ToArray())).GetText();
                     var match = Regex.Match(strResult, @"\d+");
@@ -297,6 +296,7 @@ namespace PVR
                         if (int.TryParse(match.Groups[0].Value, out int i_age) && i_age > 10)
                             age = i_age;
                     }
+                    engine.Dispose();
                     /*
                     var clone2 = img.Clone(
                             i => i.Crop(new SixLabors.ImageSharp.Rectangle(475, 1230, 95, 45)));
