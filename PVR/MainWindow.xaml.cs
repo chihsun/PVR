@@ -1,8 +1,13 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Processing;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,11 +19,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Tesseract;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Formats;
-using System.Text.RegularExpressions;
-using Newtonsoft.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace PVR
 {
@@ -199,6 +200,87 @@ namespace PVR
             AutoClosingMessageBox.Show("匯出成功", "匯出", 500);
             //MessageBox.Show("匯出成功", "匯出", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK);
         }
+        public void Do_Report(ABIPVR abidata)
+        {
+            if (File.Exists(System.AppDomain.CurrentDomain.BaseDirectory + @"\ABIReport.txt"))
+                ABIReport = File.ReadAllText(System.AppDomain.CurrentDomain.BaseDirectory + @"\ABIReport.txt");
+            else
+            {
+                MessageBox.Show("找不到範例檔", "錯誤", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                return;
+            }
+            if (abidata.Age <= 10)
+            {
+                MessageBox.Show("年齡未輸入" + abidata.ID.ToString() + "_" + abidata.StudyTime.ToShortDateString(), "錯誤", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                return;
+            }
+            if (abidata.RSBP != 0 || abidata.LSBP != 0 | abidata.RDBP != 0 | abidata.LDBP != 0)
+            {
+                if (abidata.bp_p)
+                    ABIReport = ABIReport.Replace("<<UBP>>", "Blood pressure is difference more than 15 mmHg between bilateral brachial blood pressure");
+                else
+                    ABIReport = ABIReport.Replace("<<UBP>>", "No obvious difference between bilateral brachial blood pressure");
+            }
+            else if (abidata.RSBP <= 0 && abidata.LSBP <= 0 && abidata.RDBP <= 0 && abidata.LDBP <= 0)
+                ABIReport = ABIReport.Replace("<<UBP>>", "No obvious difference between bilateral brachial blood pressure").Replace("Right & Left: <<RBP>> mmHg　&　<<LBP>> mmHg", string.Empty);
+            else
+                ABIReport = ABIReport.Replace("<<UBP>>", string.Empty);
+
+            ABIReport = ABIReport.Replace("<<RBP>>", string.Format($"{(abidata.RSBP > 0 && abidata.RDBP > 0 ? abidata.RSBP.ToString() + "/" + abidata.RDBP.ToString() : "---/---")}"));
+            ABIReport = ABIReport.Replace("<<LBP>>", string.Format($"{(abidata.LSBP > 0 && abidata.LDBP > 0 ? abidata.LSBP.ToString() + "/" + abidata.LDBP.ToString() : "---/---")}"));
+
+            ABIReport = ABIReport.Replace("<<RABI>>", abidata.rabi_r != 0 ? string.Format("{0:0.00}", abidata.rabi_r) : "---").Replace("<<LABI>>", abidata.labi_r != 0 ? string.Format("{0:0.00}", abidata.labi_r) : "---");
+
+            ABIReport = ABIReport.Replace("<<RPWV>>", abidata.rpwv_r != 0 ? abidata.rpwv_r.ToString() : "----").Replace("<<LPWV>>", abidata.lpwv_r != 0 ? abidata.lpwv_r.ToString() : "----");
+
+            ABIReport = ABIReport.Replace("<<RPVR>>", abidata.rpvr_r > 0 ? abidata.rpvr_r.ToString() : "--").Replace("<<LPVR>>", abidata.lpvr_r > 0 ? abidata.lpvr_r.ToString() : "--");
+
+            ABIReport = ABIReport.Replace("<<RUT>>", abidata.rut > 0 ? abidata.rut.ToString() : "---").Replace("<<LUT>>", abidata.lut > 0 ? abidata.lut.ToString() : "---");
+            /*
+             * Conclusion
+             */
+            List<string> Conclusion = new();
+            int index = 0;
+            if (!string.Equals(abidata.abiconclude(abidata.rabi_r), "Normal"))
+            {
+                Conclusion.Add(abidata.abiconclude(abidata.rabi_r) + " over right lower limbs");
+                index = 1;
+            }
+            if (!string.Equals(abidata.abiconclude(abidata.labi_r), "Normal"))
+            {
+                Conclusion.Add(abidata.abiconclude(abidata.labi_r) + " over left lower limbs");
+                if (index == 1)
+                    index = 3;
+                else
+                    index = 2;
+            }
+            if (Conclusion.Count < 2)
+            {
+                if (abidata.rpwv_stiff && abidata.lpwv_stiff)
+                {
+                    if (index == 0)
+                        Conclusion.Add("Arterial stiffness over both lower limbs");
+                    else if (index == 1)
+                        Conclusion.Add("Arterial stiffness over left lower limbs");
+                    else if (index == 2)
+                        Conclusion.Add("Arterial stiffness over right lower limbs");
+                }
+                else if (abidata.rpwv_stiff && index == 2)
+                {
+                    Conclusion.Add("Arterial stiffness over right lower limbs");
+                }
+                else if (abidata.lpwv_stiff && index == 1)
+                {
+                    Conclusion.Add("Arterial stiffness over left lower limbs");
+                }
+            }
+            if (Conclusion.Count == 0)
+                Conclusion.Add("No evidence of arterial stenosis over lower limbs");
+            ABIReport = ABIReport.Replace("<<Conclusion>>", string.Join(", ", Conclusion));
+            if (!Directory.Exists(System.AppDomain.CurrentDomain.BaseDirectory + @"db"))
+                Directory.CreateDirectory(System.AppDomain.CurrentDomain.BaseDirectory + @"db");
+            File.WriteAllText(System.AppDomain.CurrentDomain.BaseDirectory + @"db\" + abidata.ID.ToString() + "_" + abidata.StudyTime.ToString("yyyyMMdd") + "_" + abidata.StudyTime.ToString("HHmmss") + ".txt", ABIReport);
+        }
 
         private void BTN_TOP_Click(object sender, RoutedEventArgs e)
         {
@@ -268,7 +350,7 @@ namespace PVR
                     + System.IO.Path.GetFileName(FileCollection[i]).Split('_')[2].Replace(".csv", ""),
                     "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime studytime))
                     continue;
-                if ((DateTime.Now - studytime).TotalDays >= 90)
+                if ((DateTime.Now - studytime).TotalDays >= 180)
                     continue;
                 if (!int.TryParse(System.IO.Path.GetFileName(FileCollection[i]).Split('_')[0], out int id))
                     continue;
@@ -279,48 +361,107 @@ namespace PVR
                 if (newabi.Length < 17)
                     continue;
                 var imgPath = FileCollection[i].Replace("csv", "jpg");
-                ///OCR Age
-                int age = 0;
-                if (File.Exists(imgPath))
+                ABIPVR abidata = new();
+                if (studytime >= DateTime.ParseExact("20260410000000", "yyyyMMddHHmmss", System.Globalization.CultureInfo.InvariantCulture))
                 {
-                    var img = SixLabors.ImageSharp.Image.Load(imgPath);
-                    var clone = img.Clone(
-                            i => i.Crop(new SixLabors.ImageSharp.Rectangle(1050, 200, 150, 70)));
-                    var ms = new MemoryStream();
-                    clone.SaveAsBmp(ms);
-                    var engine = new TesseractEngine("tessdata", "eng", EngineMode.Default);
-                    string strResult = engine.Process(Pix.LoadFromMemory(ms.ToArray())).GetText();
-                    var match = Regex.Match(strResult, @"\d+");
-                    if (match.Success)
+                    int age = int.TryParse(newabi[20], out int count) ? count : 0;
+                    if (age <= 0)
+                        continue;
+                    abidata = new()
                     {
-                        if (int.TryParse(match.Groups[0].Value, out int i_age) && i_age > 10)
-                            age = i_age;
+                        RSBP = double.TryParse(newabi[1], out double counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        RDBP = double.TryParse(newabi[3], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        LSBP = double.TryParse(newabi[4], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        LDBP = double.TryParse(newabi[6], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        RSBP_A = double.TryParse(newabi[7], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        RDBP_A = double.TryParse(newabi[9], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        LSBP_A = double.TryParse(newabi[10], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        LDBP_A = double.TryParse(newabi[12], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        rabi_r = double.TryParse(newabi[13], out counts) ? counts : 0,
+                        labi_r = double.TryParse(newabi[14], out counts) ? counts : 0,
+                        rpwv_r = double.TryParse(newabi[15], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        lpwv_r = double.TryParse(newabi[16], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        rpvr_r = double.TryParse(newabi[24], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        lpvr_r = double.TryParse(newabi[25], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        rut = double.TryParse(newabi[28], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        lut = double.TryParse(newabi[29], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        StudyTime = studytime,
+                        ID = id,
+                        Age = age,
+                        Age_Vas = double.TryParse(newabi[19], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                    };
+
+                    if (File.Exists(imgPath))
+                    {
+                        try
+                        {
+                            var img = SixLabors.ImageSharp.Image.Load(imgPath);
+                            var clone = img.Clone(
+                                    i => i.Crop(new SixLabors.ImageSharp.Rectangle(1440, 1470, 880, 1190)));
+                            var ms = new MemoryStream();
+                            clone.SaveAsJpeg(ms);
+                            var engine = new TesseractEngine("tessdata", "eng", EngineMode.Default);
+                            string strResult = engine.Process(Pix.LoadFromMemory(ms.ToArray())).GetText().Replace("8D", "SD");
+                            abidata.MachineReport = strResult;
+                            engine.Dispose();
+                            /*
+                            var clone2 = img.Clone(
+                                    i => i.Crop(new SixLabors.ImageSharp.Rectangle(475, 1230, 95, 45)));
+                            clone2.SaveAsJpeg(System.AppDomain.CurrentDomain.BaseDirectory + @"db\age\Age_" + System.IO.Path.GetFileName(imgPath));
+                            */
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.ToString());
+                        }
                     }
-                    engine.Dispose();
-                    /*
-                    var clone2 = img.Clone(
-                            i => i.Crop(new SixLabors.ImageSharp.Rectangle(475, 1230, 95, 45)));
-                    clone2.SaveAsJpeg(System.AppDomain.CurrentDomain.BaseDirectory + @"db\age\Age_" + System.IO.Path.GetFileName(imgPath));
-                    */
+                    Do_Report(abidata);
                 }
-                ABIPVR abidata = new()
+                else
                 {
-                    rpwv_r = int.TryParse(newabi[0], out int count) ? count : 0,
-                    lpwv_r = int.TryParse(newabi[1], out count) ? count : 0,
-                    RSBP = double.TryParse(newabi[5], out double counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
-                    RDBP = double.TryParse(newabi[6], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
-                    LSBP = double.TryParse(newabi[8], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
-                    LDBP = double.TryParse(newabi[9], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
-                    RSBP_A = double.TryParse(newabi[11], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
-                    RDBP_A = double.TryParse(newabi[12], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
-                    LSBP_A = double.TryParse(newabi[14], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
-                    LDBP_A = double.TryParse(newabi[15], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
-                    rabi_r = double.TryParse(newabi[3], out counts) ? counts : 0,
-                    labi_r = double.TryParse(newabi[4], out counts) ? counts : 0,
-                    StudyTime = studytime,
-                    ID = id,
-                    Age = age
-                };
+                    ///OCR Age
+                    int age = 0;
+                    if (File.Exists(imgPath))
+                    {
+                        var img = SixLabors.ImageSharp.Image.Load(imgPath);
+                        var clone = img.Clone(
+                                i => i.Crop(new SixLabors.ImageSharp.Rectangle(1050, 200, 150, 70)));
+                        var ms = new MemoryStream();
+                        clone.SaveAsBmp(ms);
+                        var engine = new TesseractEngine("tessdata", "eng", EngineMode.Default);
+                        string strResult = engine.Process(Pix.LoadFromMemory(ms.ToArray())).GetText();
+                        var match = Regex.Match(strResult, @"\d+");
+                        if (match.Success)
+                        {
+                            if (int.TryParse(match.Groups[0].Value, out int i_age) && i_age > 10)
+                                age = i_age;
+                        }
+                        engine.Dispose();
+                        /*
+                        var clone2 = img.Clone(
+                                i => i.Crop(new SixLabors.ImageSharp.Rectangle(475, 1230, 95, 45)));
+                        clone2.SaveAsJpeg(System.AppDomain.CurrentDomain.BaseDirectory + @"db\age\Age_" + System.IO.Path.GetFileName(imgPath));
+                        */
+                    }
+                    abidata = new()
+                    {
+                        rpwv_r = int.TryParse(newabi[0], out int count) ? count : 0,
+                        lpwv_r = int.TryParse(newabi[1], out count) ? count : 0,
+                        RSBP = double.TryParse(newabi[5], out double counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        RDBP = double.TryParse(newabi[6], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        LSBP = double.TryParse(newabi[8], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        LDBP = double.TryParse(newabi[9], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        RSBP_A = double.TryParse(newabi[11], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        RDBP_A = double.TryParse(newabi[12], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        LSBP_A = double.TryParse(newabi[14], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        LDBP_A = double.TryParse(newabi[15], out counts) ? Convert.ToInt32(Math.Round(counts, 0, MidpointRounding.AwayFromZero)) : 0,
+                        rabi_r = double.TryParse(newabi[3], out counts) ? counts : 0,
+                        labi_r = double.TryParse(newabi[4], out counts) ? counts : 0,
+                        StudyTime = studytime,
+                        ID = id,
+                        Age = age
+                    };
+                }
                 alldata.Add(abidata);
                 /*
                 List<double> abidata = new List<double>();
@@ -396,10 +537,23 @@ namespace PVR
             RPWV.Text = abipvr.rpwv_r.ToString();
             LPWV.Text = abipvr.lpwv_r.ToString();
             Age.Text = abipvr.Age <= 10 ? string.Empty : abipvr.Age.ToString();
+            Age_Vas.IsEnabled = false;
             if (abipvr.Age <= 10)
                 Age.Focus();
+            else if (abipvr.rpvr_r >= 0 || abipvr.lpvr_r >= 0)
+            {
+                RPVR.Text = abipvr.rpvr_r.ToString();
+                LPVR.Text = abipvr.lpvr_r.ToString();
+                RUT.Text = abipvr.rut.ToString();
+                LUT.Text = abipvr.lut.ToString();
+                TB_R.Text = abipvr.MachineReport.Replace(" \n\n", "").Replace("\n\n", "\n");
+                Age_Vas.Text = abipvr.Age_Vas.ToString();
+                Report.Focus();
+            }
             else
+            {
                 RPVR.Focus();
+            }
             return true;
         }
         private void ClearData()
@@ -447,9 +601,14 @@ namespace PVR
             {
                 var img = SixLabors.ImageSharp.Image.Load(ptPath);
                 var clone = img.Clone(
-                        i => i.Crop(new SixLabors.ImageSharp.Rectangle(215, 1150, 420, 400)));
+                        i => i.Crop(new SixLabors.ImageSharp.Rectangle(1445, 2660, 840, 630)));
                 var ms = new MemoryStream();
                 clone.SaveAsJpeg(ms);
+                clone.Mutate(x => x.Resize(new ResizeOptions
+                {
+                    Size = new SixLabors.ImageSharp.Size(420, 0),
+                    Mode = SixLabors.ImageSharp.Processing.ResizeMode.Max // Preserves aspect ratio
+                }));
                 ms.Position = 0;
                 var imgsource = new BitmapImage();
                 imgsource.BeginInit();
@@ -539,6 +698,18 @@ namespace PVR
 
                 comB_ID.ItemsSource = alldata.Where(x => x.StudyTime.ToString("yyyyMMdd") == ComB_Date.SelectedValue.ToString()).Select(x => x.ID).ToList();
                 comB_ID.SelectedIndex = 0;
+            }
+        }
+
+        private void Report_M_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Clipboard.SetDataObject(TB_R.Text.Trim());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
             }
         }
     }
@@ -668,6 +839,8 @@ namespace PVR
                 return false;
             }
         }
+        public string MachineReport { get; set; }
+        public int Age_Vas;
     }
     public class AutoClosingMessageBox
     {

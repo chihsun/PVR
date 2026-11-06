@@ -5,61 +5,68 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PVR"
         mc:Ignorable="d"
-        Title="PVR&amp;ABI" Height="499" Width="919" Loaded="My_Window_Loaded" WindowStartupLocation="CenterScreen" SizeToContent="Manual" ResizeMode="CanMinimize">
+        Title="PVR&amp;ABI" Height="499" Width="1334" Loaded="My_Window_Loaded" WindowStartupLocation="CenterScreen" SizeToContent="Manual" ResizeMode="CanMinimize">
     <Grid Background="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="582*"/>
-            <ColumnDefinition Width="337*"/>
+            <ColumnDefinition Width="94*"/>
+            <ColumnDefinition Width="670*"/>
+            <ColumnDefinition Width="59*"/>
+            <ColumnDefinition Width="19*"/>
+            <ColumnDefinition Width="458*"/>
         </Grid.ColumnDefinitions>
         <Label Content="ID" HorizontalAlignment="Left" Margin="21,33,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <TextBox x:Name="ID" HorizontalAlignment="Left" Margin="111,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="100" MaxLength="8" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="0" FontSize="16" IsTabStop="False" TextChanged="ID_TextChanged" />
-        <Label Content="Age" HorizontalAlignment="Left" Margin="251,33,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <TextBox x:Name="Age" HorizontalAlignment="Left" Margin="330,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="4" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="1" FontSize="16" TextChanged="Age_TextChanged"/>
-        <Label Content="R-Bra" HorizontalAlignment="Left" Margin="21,73,0,0" VerticalAlignment="Top" FontSize="16" IsEnabled="False"/>
-        <TextBox x:Name="RSBP" HorizontalAlignment="Left" Margin="111,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="2" FontSize="16" TextChanged="RSBP_TextChanged" IsEnabled="False"/>
-        <TextBox x:Name="RDBP" HorizontalAlignment="Left" Margin="163,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="3" FontSize="16" TextChanged="RDBP_TextChanged" IsEnabled="False"/>
-        <TextBox x:Name="RRR" HorizontalAlignment="Left" Margin="218,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="4" FontSize="16" IsEnabled="False"/>
-        <Label Content="L-Bra" HorizontalAlignment="Left" Margin="251,73,0,0" VerticalAlignment="Top" FontSize="16" IsEnabled="False"/>
-        <TextBox x:Name="LSBP" HorizontalAlignment="Left" Margin="330,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="5" FontSize="16" TextChanged="LSBP_TextChanged" IsEnabled="False"/>
-        <TextBox x:Name="LDBP" HorizontalAlignment="Left" Margin="382,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="6" FontSize="16" TextChanged="LDBP_TextChanged" IsEnabled="False"/>
-        <TextBox x:Name="LRR" HorizontalAlignment="Left" Margin="437,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="7" FontSize="16" IsEnabled="False"/>
+        <TextBox x:Name="ID" HorizontalAlignment="Left" Margin="17,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="100" MaxLength="8" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="0" FontSize="16" IsTabStop="False" TextChanged="ID_TextChanged" Grid.Column="1" />
+        <Label Content="Age" HorizontalAlignment="Left" Margin="157,33,0,0" VerticalAlignment="Top" FontSize="16" Grid.Column="1"/>
+        <TextBox x:Name="Age" HorizontalAlignment="Left" Margin="236,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="40" MaxLength="4" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="1" FontSize="16" TextChanged="Age_TextChanged" Grid.Column="1"/>
+        <Label Content="R-Bra" HorizontalAlignment="Center" Margin="0,73,0,0" VerticalAlignment="Top" FontSize="16" IsEnabled="False"/>
+        <TextBox x:Name="RSBP" HorizontalAlignment="Left" Margin="17,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="2" FontSize="16" TextChanged="RSBP_TextChanged" IsEnabled="False" Grid.Column="1"/>
+        <TextBox x:Name="RDBP" HorizontalAlignment="Left" Margin="69,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="3" FontSize="16" TextChanged="RDBP_TextChanged" IsEnabled="False" Grid.Column="1"/>
+        <TextBox x:Name="RRR" HorizontalAlignment="Left" Margin="124,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="4" FontSize="16" IsEnabled="False" Grid.Column="1"/>
+        <Label Content="L-Bra" HorizontalAlignment="Left" Margin="157,73,0,0" VerticalAlignment="Top" FontSize="16" IsEnabled="False" Grid.Column="1"/>
+        <TextBox x:Name="LSBP" HorizontalAlignment="Left" Margin="236,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="5" FontSize="16" TextChanged="LSBP_TextChanged" IsEnabled="False" Grid.Column="1"/>
+        <TextBox x:Name="LDBP" HorizontalAlignment="Left" Margin="288,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="6" FontSize="16" TextChanged="LDBP_TextChanged" IsEnabled="False" Grid.Column="1"/>
+        <TextBox x:Name="LRR" HorizontalAlignment="Left" Margin="343,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="7" FontSize="16" IsEnabled="False" Grid.Column="1"/>
         <Label Content="R-Ank" HorizontalAlignment="Left" Margin="21,108,0,0" VerticalAlignment="Top" FontSize="16" IsEnabled="False"/>
-        <TextBox x:Name="RSBP_A" HorizontalAlignment="Left" Margin="111,112,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="8" FontSize="16" TextChanged="RSBPA_TextChanged" IsEnabled="False"/>
-        <TextBox x:Name="RDBP_A" HorizontalAlignment="Left" Margin="163,112,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="9" FontSize="16" TextChanged="RDBPA_TextChanged" IsEnabled="False"/>
-        <TextBox x:Name="RRR_A" HorizontalAlignment="Left" Margin="218,112,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="10" FontSize="16" IsEnabled="False"/>
-        <Label Content="L-Ank" HorizontalAlignment="Left" Margin="251,108,0,0" VerticalAlignment="Top" FontSize="16" IsEnabled="False"/>
-        <TextBox x:Name="LSBP_A" HorizontalAlignment="Left" Margin="330,112,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="11" FontSize="16" TextChanged="LSBPA_TextChanged" IsEnabled="False"/>
-        <TextBox x:Name="LDBP_A" HorizontalAlignment="Left" Margin="382,112,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="12" FontSize="16" TextChanged="LDBPA_TextChanged" IsEnabled="False"/>
-        <TextBox x:Name="LRR_A" HorizontalAlignment="Left" Margin="437,112,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="13" FontSize="16" IsEnabled="False"/>
-        <Label Content="Right ABI" HorizontalAlignment="Left" Margin="21,144,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <TextBox x:Name="RABI" HorizontalAlignment="Left" Margin="111,148,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="4" PreviewKeyDown="TB2_PreviewKeyDown" TabIndex="14" FontSize="16" TextChanged="RABI_TextChanged"/>
-        <Label Content="Left ABI" HorizontalAlignment="Left" Margin="251,144,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <TextBox x:Name="LABI" HorizontalAlignment="Left" Margin="330,148,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="4" PreviewKeyDown="TB2_PreviewKeyDown" TabIndex="15" FontSize="16" TextChanged="LABI_TextChanged"/>
-        <Label Content="Right PWV" HorizontalAlignment="Left" Margin="21,193,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <TextBox x:Name="RPWV" HorizontalAlignment="Left" Margin="111,197,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="4" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="16" FontSize="16" TextChanged="RPWV_TextChanged"/>
-        <Label Content="Left PWV" HorizontalAlignment="Left" Margin="250,193,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <TextBox x:Name="LPWV" HorizontalAlignment="Left" Margin="330,197,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="4" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="17" FontSize="16" TextChanged="LPWV_TextChanged"/>
-        <Label Content="Right PVR" HorizontalAlignment="Left" Margin="21,244,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <TextBox x:Name="RPVR" HorizontalAlignment="Left" Margin="111,248,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="2" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="18" FontSize="16" TextChanged="RPVR_TextChanged"/>
-        <Label Content="Left PVR" HorizontalAlignment="Left" Margin="251,244,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <TextBox x:Name="LPVR" HorizontalAlignment="Left" Margin="330,248,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="2" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="19" FontSize="16" TextChanged="LPVR_TextChanged"/>
-        <Label Content="%" HorizontalAlignment="Left" Margin="172,244,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <Label Content="%" HorizontalAlignment="Left" Margin="397,244,0,0" VerticalAlignment="Top" RenderTransformOrigin="11.216,0.691" FontSize="16"/>
-        <Label Content="Right UT" HorizontalAlignment="Left" Margin="21,279,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <TextBox x:Name="RUT" HorizontalAlignment="Left" Margin="111,283,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="20" FontSize="16" TextChanged="RUT_TextChanged"/>
-        <Label Content="Left UT" HorizontalAlignment="Left" Margin="251,279,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <TextBox x:Name="LUT" HorizontalAlignment="Left" Margin="330,283,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="21" FontSize="16" TextChanged="LUT_TextChanged"/>
-        <Label Content="ms" HorizontalAlignment="Left" Margin="172,279,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <Label Content="ms" HorizontalAlignment="Left" Margin="397,279,0,0" VerticalAlignment="Top" RenderTransformOrigin="11.216,0.691" FontSize="16"/>
-        <Button x:Name="Report" Content="複製報告" HorizontalAlignment="Left" Margin="314,339,0,0" VerticalAlignment="Top" RenderTransformOrigin="2.094,0.64" Click="Report_Click" TabIndex="99" PreviewKeyDown="TB5_PreviewKeyDown" FontSize="16" Width="100" Height="32"/>
-        <Button x:Name="BT_Clear" Content="清除" HorizontalAlignment="Left" Margin="21,339,0,0" VerticalAlignment="Top" Click="BT_Clear_Click" IsTabStop="False" FontSize="16" Width="100" Height="32"/>
-        <Button x:Name="BTN_TOP" Content="最上層" HorizontalAlignment="Left" Margin="166,339,0,0" VerticalAlignment="Top" IsTabStop="False" Click="BTN_TOP_Click" FontSize="16" Width="100" Height="32"/>
-        <Button x:Name="BTN_OCR" Content="OCR" HorizontalAlignment="Left" Margin="166,413,0,0" VerticalAlignment="Top" IsTabStop="False" FontSize="16" Width="100" Click="BTN_OCR_Click" IsEnabled="False"/>
-        <Button x:Name="BTN_OCR_Copy" Content="載入資料" HorizontalAlignment="Left" Margin="21,413,0,0" VerticalAlignment="Top" IsTabStop="False" FontSize="16" Width="100" Click="BTN_ALL_Click"/>
-        <ComboBox x:Name="comB_ID" HorizontalAlignment="Left" Margin="330,10,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="comB_ID_SelectionChanged"/>
-        <ComboBox x:Name="ComB_Date" HorizontalAlignment="Left" Margin="111,10,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="ComB_Date_SelectionChanged"/>
-        <Image x:Name="IMG_00" HorizontalAlignment="Left" Height="400" Margin="484,63,0,0" VerticalAlignment="Top" Width="420" Grid.ColumnSpan="2"/>
-        <Image x:Name="IMG_01" HorizontalAlignment="Left" Height="50" Margin="544,10,0,0" VerticalAlignment="Top" Width="300" Grid.ColumnSpan="2"/>
-        <CheckBox x:Name="CB_NoDate" Content="病歷號模式(3M)" HorizontalAlignment="Left" Margin="3,13,0,0" VerticalAlignment="Top" Checked="CB_NoDate_Checked" Unchecked="CB_NoDate_Unchecked"/>
+        <TextBox x:Name="RSBP_A" HorizontalAlignment="Left" Margin="17,112,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="8" FontSize="16" TextChanged="RSBPA_TextChanged" IsEnabled="False" Grid.Column="1"/>
+        <TextBox x:Name="RDBP_A" HorizontalAlignment="Left" Margin="69,112,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="9" FontSize="16" TextChanged="RDBPA_TextChanged" IsEnabled="False" Grid.Column="1"/>
+        <TextBox x:Name="RRR_A" HorizontalAlignment="Left" Margin="124,112,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="10" FontSize="16" IsEnabled="False" Grid.Column="1"/>
+        <Label Content="L-Ank" HorizontalAlignment="Left" Margin="157,108,0,0" VerticalAlignment="Top" FontSize="16" IsEnabled="False" Grid.Column="1"/>
+        <TextBox x:Name="LSBP_A" HorizontalAlignment="Left" Margin="236,112,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="11" FontSize="16" TextChanged="LSBPA_TextChanged" IsEnabled="False" Grid.Column="1"/>
+        <TextBox x:Name="LDBP_A" HorizontalAlignment="Left" Margin="288,112,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="12" FontSize="16" TextChanged="LDBPA_TextChanged" IsEnabled="False" Grid.Column="1"/>
+        <TextBox x:Name="LRR_A" HorizontalAlignment="Left" Margin="343,112,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="13" FontSize="16" IsEnabled="False" Grid.Column="1"/>
+        <Label Content="Right ABI" HorizontalAlignment="Left" Margin="21,144,0,0" VerticalAlignment="Top" FontSize="16" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="RABI" HorizontalAlignment="Left" Margin="17,148,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="4" PreviewKeyDown="TB2_PreviewKeyDown" TabIndex="14" FontSize="16" TextChanged="RABI_TextChanged" Grid.Column="1"/>
+        <Label Content="Left ABI" HorizontalAlignment="Left" Margin="157,144,0,0" VerticalAlignment="Top" FontSize="16" Grid.Column="1"/>
+        <TextBox x:Name="LABI" HorizontalAlignment="Left" Margin="236,148,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="4" PreviewKeyDown="TB2_PreviewKeyDown" TabIndex="15" FontSize="16" TextChanged="LABI_TextChanged" Grid.Column="1"/>
+        <Label Content="Right PWV" HorizontalAlignment="Left" Margin="21,193,0,0" VerticalAlignment="Top" FontSize="16" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="RPWV" HorizontalAlignment="Left" Margin="17,197,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="4" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="16" FontSize="16" TextChanged="RPWV_TextChanged" Grid.Column="1"/>
+        <Label Content="Left PWV" HorizontalAlignment="Left" Margin="156,193,0,0" VerticalAlignment="Top" FontSize="16" Grid.Column="1"/>
+        <TextBox x:Name="LPWV" HorizontalAlignment="Left" Margin="236,197,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="4" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="17" FontSize="16" TextChanged="LPWV_TextChanged" Grid.Column="1"/>
+        <Label Content="Right PVR" HorizontalAlignment="Left" Margin="21,244,0,0" VerticalAlignment="Top" FontSize="16" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="RPVR" HorizontalAlignment="Left" Margin="17,248,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="2" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="18" FontSize="16" TextChanged="RPVR_TextChanged" Grid.Column="1"/>
+        <Label Content="Left PVR" HorizontalAlignment="Left" Margin="157,244,0,0" VerticalAlignment="Top" FontSize="16" Grid.Column="1"/>
+        <TextBox x:Name="LPVR" HorizontalAlignment="Left" Margin="236,248,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="2" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="19" FontSize="16" TextChanged="LPVR_TextChanged" Grid.Column="1"/>
+        <Label Content="%" HorizontalAlignment="Left" Margin="78,244,0,0" VerticalAlignment="Top" FontSize="16" Grid.Column="1"/>
+        <Label Content="%" HorizontalAlignment="Left" Margin="303,244,0,0" VerticalAlignment="Top" RenderTransformOrigin="11.216,0.691" FontSize="16" Grid.Column="1"/>
+        <Label Content="Right UT" HorizontalAlignment="Left" Margin="21,279,0,0" VerticalAlignment="Top" FontSize="16" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="RUT" HorizontalAlignment="Left" Margin="17,283,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="20" FontSize="16" TextChanged="RUT_TextChanged" Grid.Column="1"/>
+        <Label Content="Left UT" HorizontalAlignment="Left" Margin="157,279,0,0" VerticalAlignment="Top" FontSize="16" Grid.Column="1"/>
+        <TextBox x:Name="LUT" HorizontalAlignment="Left" Margin="236,283,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" MaxLength="3" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="21" FontSize="16" TextChanged="LUT_TextChanged" Grid.Column="1"/>
+        <Label Content="ms" HorizontalAlignment="Left" Margin="78,279,0,0" VerticalAlignment="Top" FontSize="16" Grid.Column="1"/>
+        <Label Content="ms" HorizontalAlignment="Left" Margin="303,279,0,0" VerticalAlignment="Top" RenderTransformOrigin="11.216,0.691" FontSize="16" Grid.Column="1"/>
+        <Button x:Name="Report" Content="產生報告" HorizontalAlignment="Left" Margin="220,339,0,0" VerticalAlignment="Top" RenderTransformOrigin="2.094,0.64" Click="Report_Click" TabIndex="99" PreviewKeyDown="TB5_PreviewKeyDown" FontSize="16" Width="100" Height="32" Grid.Column="1"/>
+        <Button x:Name="BT_Clear" Content="清除" HorizontalAlignment="Left" Margin="21,339,0,0" VerticalAlignment="Top" Click="BT_Clear_Click" IsTabStop="False" FontSize="16" Width="100" Height="32" Grid.ColumnSpan="2"/>
+        <Button x:Name="BTN_TOP" Content="最上層" HorizontalAlignment="Left" Margin="72,339,0,0" VerticalAlignment="Top" IsTabStop="False" Click="BTN_TOP_Click" FontSize="16" Width="100" Height="32" Grid.Column="1"/>
+        <Button x:Name="BTN_OCR" Content="OCR" HorizontalAlignment="Left" Margin="72,413,0,0" VerticalAlignment="Top" IsTabStop="False" FontSize="16" Width="100" Click="BTN_OCR_Click" IsEnabled="False" Grid.Column="1"/>
+        <Button x:Name="BTN_OCR_Copy" Content="載入資料" HorizontalAlignment="Left" Margin="21,413,0,0" VerticalAlignment="Top" IsTabStop="False" FontSize="16" Width="100" Click="BTN_ALL_Click" Grid.ColumnSpan="2"/>
+        <ComboBox x:Name="comB_ID" HorizontalAlignment="Left" Margin="236,10,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="comB_ID_SelectionChanged" Grid.Column="1"/>
+        <ComboBox x:Name="ComB_Date" HorizontalAlignment="Left" Margin="17,10,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="ComB_Date_SelectionChanged" Grid.Column="1"/>
+        <Image x:Name="IMG_00" HorizontalAlignment="Left" Height="375" Margin="390,88,0,0" VerticalAlignment="Top" Width="420" Grid.ColumnSpan="4" Grid.Column="1"/>
+        <Image x:Name="IMG_01" HorizontalAlignment="Left" Height="50" Margin="450,10,0,0" VerticalAlignment="Top" Width="300" Grid.ColumnSpan="4" Grid.Column="1"/>
+        <CheckBox x:Name="CB_NoDate" Content="病歷號模式(3M)" HorizontalAlignment="Left" Margin="3,13,0,0" VerticalAlignment="Top" Checked="CB_NoDate_Checked" Unchecked="CB_NoDate_Unchecked" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="TB_R" Grid.Column="4" HorizontalAlignment="Left" Margin="62,33,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="384" Height="392" FontSize="16"/>
+        <Label Content="Vascular Age" HorizontalAlignment="Left" Margin="296,33,0,0" VerticalAlignment="Top" FontSize="16" Grid.Column="1"/>
+        <TextBox x:Name="Age_Vas" HorizontalAlignment="Left" Margin="404,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="40" MaxLength="4" PreviewKeyDown="TB_PreviewKeyDown" TabIndex="1" FontSize="16" TextChanged="Age_TextChanged" Grid.Column="1"/>
+        <Button x:Name="Report_Machine" Content="機器報告" HorizontalAlignment="Left" Margin="220,409,0,0" VerticalAlignment="Top" RenderTransformOrigin="2.094,0.64" Click="Report_M_Click" TabIndex="99" PreviewKeyDown="TB5_PreviewKeyDown" FontSize="16" Width="100" Height="32" Grid.Column="1"/>
     </Grid>
 </Window>
